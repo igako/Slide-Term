@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TEMA TERMINAL HACKER - COMPLETO E FIXADO
+   TEMA TERMINAL HACKER 
    ========================================================================== */
 
 :root {
@@ -14,6 +14,8 @@
 /* 1. Reset e Configurações de Tela */
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -23,10 +25,21 @@ body {
     justify-content: center;
     align-items: center;
     margin: 0;
-    min-height: 100vh;
+    
+    /* Garante estabilidade de tamanho em navegadores mobile */
+    height: 100vh;          
+    height: -webkit-fill-available; /* Correção para a barra de navegação do Safari/Chrome no iOS/Android */
+    width: 100vw;           
+    
     font-family: var(--font-mono);
-    overflow: hidden;
+    overflow: hidden;       
     text-shadow: var(--text-glow);
+    padding: 10px;          /* Margem mínima em telas pequenas */
+}
+
+html {
+    /* Complemento para a correção de altura no mobile */
+    height: -webkit-fill-available; 
 }
 
 /* Classe utilitária para esconder a linha de comando durante o boot */
@@ -34,18 +47,26 @@ body {
     display: none !important;
 }
 
-/* 2. Janela Principal do Terminal (Proporção de Slide) */
+/* 2. Janela Principal do Terminal (Responsiva e Adaptável) */
 .slide-container {
     background-color: var(--bg-color);
     border: 2px solid var(--terminal-dim);
     box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
     display: none;
     flex-direction: column;
-    height: 720px;
-    padding: 50px;
-    position: relative; /* ESSENCIAL: Serve de âncora para o rodapé absoluto */
-    width: 1280px;
-    overflow: hidden;
+    
+    /* Desktop: Proporção de slide (1280x720) | Mobile: Ocupa a tela inteira */
+    width: 100%;
+    max-width: 1280px;
+    height: 100%;
+    max-height: 720px;
+    
+    /* Espaçamento interno fluido (menor no celular, maior no PC) */
+    padding: clamp(15px, 5vw, 45px); 
+    
+    position: relative; 
+    overflow-y: auto;   /* Permite rolagem INTERNA se o texto do terminal for muito longo no celular */
+    overflow-x: hidden;
 }
 
 .slide-container.active {
@@ -61,4 +82,29 @@ body {
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                 linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
     z-index: 10;
-    background-size: 10
+    background-size: 100% 4px; 
+    pointer-events: none;      
+}
+
+/* ==========================================================================
+   3. REGRAS ESPECÍFICAS PARA DISPOSITIVOS MÓVEIS (Media Queries)
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 0; /* Remove as bordas externas no celular para ganhar tela */
+    }
+
+    .slide-container {
+        /* No celular, o terminal vira o app inteiro (sem limites de 1280x720) */
+        max-width: 100%;
+        max-height: 100%;
+        border: none; /* Remove a borda para parecer um app nativo de terminal */
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    /* Otimização de tipografia para telas pequenas (evita que textos quebrem bizarramente) */
+    body, input, button, textarea {
+        font-size: 14px; 
+    }
+}
