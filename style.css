@@ -1,0 +1,64 @@
+/* ==========================================================================
+   TEMA TERMINAL HACKER - COMPLETO E FIXADO
+   ========================================================================== */
+
+:root {
+    --bg-color: #050505;
+    --terminal-green: #00ff41;
+    --terminal-dim: #008f11;
+    --terminal-error: #ff3e3e;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --text-glow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+/* 1. Reset e Configurações de Tela */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #111111;
+    color: var(--terminal-green);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-mono);
+    overflow: hidden;
+    text-shadow: var(--text-glow);
+}
+
+/* Classe utilitária para esconder a linha de comando durante o boot */
+.hidden {
+    display: none !important;
+}
+
+/* 2. Janela Principal do Terminal (Proporção de Slide) */
+.slide-container {
+    background-color: var(--bg-color);
+    border: 2px solid var(--terminal-dim);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+    display: none;
+    flex-direction: column;
+    height: 720px;
+    padding: 50px;
+    position: relative; /* ESSENCIAL: Serve de âncora para o rodapé absoluto */
+    width: 1280px;
+    overflow: hidden;
+}
+
+.slide-container.active {
+    display: flex;
+}
+
+/* Efeito de linhas de escaneamento de monitor antigo (Scanlines) */
+.slide-container::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+    z-index: 10;
+    background-size: 10

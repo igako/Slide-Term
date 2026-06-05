@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cibersegurança - Terminal Pentest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #050505;
+            --terminal-green: #00ff41;
+            --terminal-dim: #008f11;
+            --terminal-error: #ff3e3e;
+            --font-mono: 'JetBrains Mono', monospace;
+            --text-glow: 0 0 8px rgba(0, 255, 65, 0.6);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #111111;
+            color: var(--terminal-green);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            min-height: 100vh;
+            font-family: var(--font-mono);
+            overflow: hidden;
+            text-shadow: var(--text-glow);
+        }
+
+        /* Monitor / Janela do Slide */
+        .slide-container {
+            background-color: var(--bg-color);
+            border: 2px solid var(--terminal-dim);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+            display: flex;
+            flex-direction: column;
+            height: 720px;
+            padding: 40px;
+            position: relative;
+            width: 1280px;
+            overflow: hidden;
+        }
+
+        /* Efeito de linhas CRT antigas */
+        .slide-container::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            z-index: 10;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* Área de Conteúdo Dinâmico */
+        #terminal-content {
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 30px);
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        #terminal-content::-webkit-scrollbar { width: 6px; }
+        #terminal-content::-webkit-scrollbar-thumb { background: var(--terminal-dim); border-radius: 3px; }
+
+        #output { white-space: pre-wrap; margin-bottom: 15px; }
+
+        /* Ícones e Cabeçalho */
+        .terminal-header-icons {
+            display: flex;
+            gap: 20px;
+            font-size: 26px;
+            margin-bottom: 15px;
+            color: var(--terminal-green);
+        }
+
+        .ascii-art {
+            font-size: 10px;
+            line-height: 1.2;
+            white-space: pre;
+            color: var(--terminal-dim);
+            margin-bottom: 20px;
+        }
+
+        /* Inputs */
+        .input-line { display: flex; align-items: center; }
+        .prompt { color: var(--terminal-green); margin-right: 12px; font-weight: bold; }
+        #command-input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-size: 18px;
+            outline: none;
+            width: 85%;
+            caret-color: var(--terminal-green);
+        }
+
+        .history-line { margin-top: 8px; }
+        .response-line { color: #cccccc; margin-bottom: 12px; text-shadow: none; }
+        .response-line.error { color: var(--terminal-error); text-shadow: 0 0 8px rgba(255, 62, 62, 0.6); }
+
+        /* Banner de Sucesso Centralizado */
+        #success-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        .success-banner {
+            font-size: 70px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-shadow: 0 0 25px var(--terminal-green);
+            animation: pulse 1s infinite alternate;
+        }
+
+        /* Visualizador de Imagens (Slides PNG) */
+        #slide-viewer {
+            display: none;
+            flex-direction: column;
+            height: calc(100% - 40px);
+            position: relative;
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--terminal-dim);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .slide-display {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            background: #000;
+            overflow: hidden;
+            height: 480px;
+        }
+
+        .slide-display img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Botões de Navegação dos Slides */
+        .nav-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--terminal-green);
+            color: var(--terminal-green);
+            font-family: var(--font-mono);
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--terminal-dim);
+            color: #000;
+            box-shadow: 0 0 10px var(--terminal-green);
+        }
+
+        /* Rodapé Fixo */
+        .footer {
+            position: absolute;
+            bottom: 25px;
+            right: 40px;
+            font-size: 14px;
+            color: var(--terminal-dim);
+            border-top: 1px dashed var(--terminal-dim);
+            padding-top: 5px;
+            background-color: var(--bg-color);
+            padding-left: 10px;
+            z-index: 20;
+            text-shadow: none;
+        }
+
+        .hidden { display: none !important; }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        
+        <div id="terminal-content">
+            <div class="terminal-header-icons">
+                <i class="fa-solid fa-terminal"></i>
+                <i class="fa-solid fa-user-secret"></i>
+                <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <div class="ascii-art">
+  _  _   _   ___ _  _____ ___    ___  ___ _  _ _____ ___ ___ _____ 
+ | || | /_\ / __| |/ / __| _ \  | _ \/ __| \| |_   _| __/ __|_   _|
+ | __ |/ _ \ (__| ' <| _||   /  |  _/  __| .` | | | | _|\__ \ | |  
+ |_||_/_/ \_\___|_|\_\___|_|_\  |_|  \___|_|\_| |_| |___|___/ |_|  
+            </div>
+            
+            <div id="output"></div>
+            
+            <div class="input-line hidden" id="input-container">
+                <span class="prompt">guest@pentest-academy:~$</span>
+                <input type="text" id="command-input" autofocus autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+
+        <div id="success-screen">
+            <div class="success-banner"><i class="fa-solid fa-unlock-keyhole"></i> SUCCESSFUL CONNECTION!</div>
+            <p style="color: var(--terminal-green); font-size: 20px; margin-top: 20px;">Privilégios elevados obtidos. Acedendo aos ficheiros confidenciais...</p>
+        </div>
+
+        <div id="slide-viewer">
+            <div class="slide-header">
+                <span id="slide-current-command" style="color: #fff;">root@target_system:~# cat slides/slide1.png</span>
+                <div class="nav-controls">
+                    <button class="nav-btn" onclick="changeSlide(-1)"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <button class="nav-btn" onclick="changeSlide(1)">Avançar <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="slide-display">
+                <img id="slide-img" src="" alt="Slide Atual">
+            </div>
+        </div>
+        
+        <div class="footer">Prof. Igor Reis</div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const inputContainer = document.getElementById('input-container');
+        const cmdInput = document.getElementById('command-input');
+        const terminalContent = document.getElementById('terminal-content');
+        const successScreen = document.getElementById('success-screen');
+        const slideViewer = document.getElementById('slide-viewer');
+        const slideImg = document.getElementById('slide-img');
+        const currentCmdLabel = document.getElementById('slide-current-command');
+
+        // ================= CONFIGURAÇÃO DOS SLIDES =================
+        // Altere o número abaixo para a quantidade exata de imagens na sua pasta /slides
+        const TOTAL_DE_SLIDES = 28; 
+        
+        // Gera automaticamente a array: ["slide1.png", "slide2.png", ...]
+        const localSlides = Array.from({length: TOTAL_DE_SLIDES}, (_, i) => `slide${i + 1}.png`);
+        // ===========================================================
+
+        let currentSlideIndex = 0;
+        let systemUnlocked = false;
+
+        const bootSequence = [
+            "[*] Host ativo detetado na sub-rede local...",
+            "[+] A iniciar rotinas de varredura de vulnerabilidades...",
+            "[+] Portas mapeadas abertas: [22/ssh, 80/http, 443/https]",
+            "[!] Alerta: Sistema de prevenção de intrusão (IPS) detetou ruído.",
+            "[*] A camuflar assinaturas de pacotes... Latência artificial: 45ms.",
+            "[?] Firewall robusto detetado. Autenticação estrita necessária.",
+            " ",
+            "DICA: Digite 'help' para comandos ou use a credencial correta para invadir."
+        ];
+
+        // Animação de digitação de boot com latência simulada
+        async function runBootSequence(lines) {
+            for (let line of lines) {
+                const p = document.createElement('div');
+                output.appendChild(p);
+                for (let i = 0; i < line.length; i++) {
+                    p.innerHTML += line[i];
+                    await new Promise(r => setTimeout(r, 12));
+                }
+                await new Promise(r => setTimeout(r, 120));
+                terminalContent.scrollTop = terminalContent.scrollHeight;
+            }
+            inputContainer.classList.remove('hidden');
+            cmdInput.focus();
+        }
+
+        // Lógica de processamento de comandos do Terminal
+        cmdInput.addEventListener('keydown', async function(e) {
+            if (e.key === 'Enter') {
+                const rawValue = cmdInput.value;
+                const cmd = rawValue.trim().toLowerCase();
+                
+                const historyLine = document.createElement('div');
+                historyLine.className = 'history-line';
+                historyLine.innerHTML = `<span class="prompt">guest@pentest-academy:~$</span> ${rawValue}`;
+                output.appendChild(historyLine);
+
+                const responseLine = document.createElement('div');
+                responseLine.className = 'response-line';
+                
+                if (cmd === 'help') {
+                    responseLine.innerHTML = "Comandos: help, whoami, ls, pwd, ip route, ifconfig, clear, sudo pentest";
+                } else if (cmd === 'whoami') {
+                    responseLine.innerHTML = "guest_student // Sessão limitada. Eleve privilégios com 'sudo pentest'.";
+                } else if (cmd === 'ls') {
+                    responseLine.innerHTML = "slides/ &lt;dir&gt;<br>secret_logs.txt<br>conectados_na_rede.py";
+                } else if (cmd === 'pwd') {
+                    responseLine.innerHTML = "/home/guest/cybersecurity_class";
+                } else if (cmd === 'ip route') {
+                    responseLine.innerHTML = "default via 192.168.1.1 dev eth0 proto static metric 100";
+                } else if (cmd === 'ifconfig') {
+                    responseLine.innerHTML = "eth0: flags=4163&lt;UP,BROADCAST,RUNNING&gt; mtu 1500<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inet 192.168.1.50 netmask 255.255.255.0";
+                } else if (cmd === 'clear') {
+                    output.innerHTML = "";
+                } else if (cmd === 'sudo pentest') {
+                    inputContainer.classList.add('hidden');
+                    cmdInput.blur();
+                    await runExploitSimulation();
+                    return;
+                } else if (cmd.startsWith('cd ')) {
+                    const targetFile = rawValue.substring(3).trim();
+                    responseLine.className = 'response-line error';
+                    responseLine.innerHTML = "Acesso Negado: Criptografia ativa. Execute 'help' para obter ajuda.";
+                } else if (cmd === '') {
+                    // Sem ação para linha vazia
+                } else {
+                    responseLine.className = 'response-line error';
+                    responseLine.innerHTML = "Comando não encontrado: " + rawValue;
+                }
+
+                output.appendChild(responseLine);
+                cmdInput.value = "";
+                terminalContent.scrollTop = terminalContent.scrollHeight;
+            }
+        });
+
+        // Simulação visual da Invasão ocorrendo em tempo de execução
+        async function runExploitSimulation() {
+            const attackLogs = [
+                " ",
+                "[!] INICIANDO EXPLOIT EM BUFFER OVERFLOW...",
+                "[*] Payload correspondente selecionado: linux/x64/shell_reverse",
+                "[*] A injetar código na pilha de memória de destino...",
+                "    0x7fffffffe400  [ffffffffffffffff] -> OVERFLOW DETECTADO",
+                "[+] Alvo comprometido! Quebrando chaves de criptografia RSA...",
+                "[+] Descriptografando diretório de arquivos local (./slides)...",
+                " "
+            ];
+
+            for (let log of attackLogs) {
+                const p = document.createElement('div');
+                p.style.color = '#fff';
+                output.appendChild(p);
+                for (let i = 0; i < log.length; i++) {
+                    p.innerHTML += log[i];
+                    await new Promise(r => setTimeout(r, 10));
+                }
+                await new Promise(r => setTimeout(r, 100));
+                terminalContent.scrollTop = terminalContent.scrollHeight;
+            }
+
+            await new Promise(r => setTimeout(r, 500));
+            
+            // Transição para Tela de Sucesso
+            terminalContent.style.display = 'none';
+            successScreen.style.display = 'flex';
+
+            // Aguarda no banner de sucesso e abre os slides
+            await new Promise(r => setTimeout(r, 2500));
+            successScreen.style.display = 'none';
+            openSlideViewer();
+        }
+
+        // Ativação do módulo visualizador de slides PNG
+        function openSlideViewer() {
+            systemUnlocked = true;
+            slideViewer.style.display = 'flex';
+            updateSlideView();
+        }
+
+        // Atualização da imagem renderizada apontando para a pasta /slides
+        function updateSlideView() {
+            const currentImgName = localSlides[currentSlideIndex];
+            slideImg.src = "slides/" + currentImgName; // Caminho apontando para a pasta
+            currentCmdLabel.innerHTML = `root@target_system:~# cat slides/${currentImgName} <span style="color:var(--terminal-dim);">(${currentSlideIndex + 1}/${localSlides.length})</span>`;
+        }
+
+        // Navegação de slides
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            if (currentSlideIndex >= localSlides.length) currentSlideIndex = 0;
+            if (currentSlideIndex < 0) currentSlideIndex = localSlides.length - 1;
+            updateSlideView();
+        }
+
+        // Lógica de atalhos e comandos por teclado pós login
+        window.addEventListener('keydown', function(e) {
+            if (systemUnlocked) {
+                if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1); // Barra de espaço avança também
+                if (e.key === 'ArrowLeft') changeSlide(-1);
+            }
+        });
+
+        // Força foco no input ao clicar na tela na fase de autenticação
+        document.addEventListener('click', () => {
+            if (!systemUnlocked && !inputContainer.classList.contains('hidden')) {
+                cmdInput.focus();
+            }
+        });
+
+        window.onload = () => runBootSequence(bootSequence);
+    </script>
+</body>
+</html>

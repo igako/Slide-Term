@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Apresentação - Pentest Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --terminal-green: #00ff41;
+            --terminal-dim: #008f11;
+            --text-glow: 0 0 15px rgba(0, 255, 65, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Container Principal Centralizado */
+        .launch-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* Título discreto acima do botão */
+        .system-title {
+            color: var(--terminal-dim);
+            font-size: 14px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-align: center;
+            animation: blink 2s infinite ease-in-out;
+        }
+
+        /* Botão Circular Verde */
+        .play-button {
+            background: transparent;
+            border: 3px solid var(--terminal-green);
+            border-radius: 50%;
+            color: var(--terminal-green);
+            cursor: pointer;
+            width: 120px;
+            height: 120px;
+            font-size: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 20px rgba(0, 255, 65, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: var(--text-glow);
+        }
+
+        /* Alinhamento do ícone de play (compensando o recuo natural do triângulo) */
+        .play-button i {
+            margin-left: 8px; 
+        }
+
+        /* Efeito de Hover (Passar o mouse) */
+        .play-button:hover {
+            background-color: var(--terminal-green);
+            color: #000000;
+            transform: scale(1.1);
+            box-shadow: var(--text-glow), 0 0 40px var(--terminal-green);
+            text-shadow: none;
+        }
+
+        /* Efeito de Clique */
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Animação de pulso no texto */
+        @keyframes blink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="launch-container">
+        <div class="system-title">Inicializar Módulo de Slides</div>
+        
+        <button class="play-button" onclick="launchPresentation()" title="Iniciar">
+            <i class="fa-solid fa-play"></i>
+        </button>
+    </div>
+
+    <script>
+        function launchPresentation() {
+            // Redireciona para o arquivo index.html na mesma pasta
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
