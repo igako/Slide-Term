@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TEMA TERMINAL HACKER - COMPLETO E FIXADO (CORRIGIDO)
+   TEMA TERMINAL HACKER - by igako
    ========================================================================== */
 
 :root {
@@ -14,6 +14,8 @@
 /* 1. Reset e Configurações de Tela */
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -22,31 +24,36 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0;
     min-height: 100vh;
     font-family: var(--font-mono);
     overflow: hidden;
     text-shadow: var(--text-glow);
+    padding: 10px;
 }
 
-/* Classe utilitária para esconder a linha de comando durante o boot */
+/* Classe utilitária para esconder elementos via JavaScript */
 .hidden {
     display: none !important;
 }
 
-/* 2. Janela Principal do Terminal (Proporção de Slide) */
+/* 2. Janela Principal do Terminal (Proporção de Slide Adaptável) */
 .slide-container {
     background-color: var(--bg-color);
     border: 2px solid var(--terminal-dim);
     box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
-    display: flex; /* Retornado para flex para não quebrar o JS original */
+    display: flex;
     flex-direction: column;
-    height: 720px;
-    padding: 40px; /* Ajustado de 50px para 40px para melhor encaixe do conteúdo */
-    position: relative; /* ESSENCIAL: Serve de âncora para o rodapé absoluto */
-    width: 1280px;
-    max-width: 95vw; /* Evita quebrar totalmente em telas ligeiramente menores */
+    
+    /* Configurações de tamanho fluido */
+    width: 95vw;
+    height: 90vh;
+    max-width: 1280px;
+    max-height: 720px;
+    
+    padding: 40px;
+    position: relative; /* Âncora para o rodapé absoluto */
     overflow: hidden;
+    border-radius: 4px;
 }
 
 /* Efeito de linhas de escaneamento de monitor antigo (Scanlines CRT) */
@@ -58,7 +65,7 @@ body {
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                 linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
     z-index: 10;
-    background-size: 100% 4px, 6px 100%; /* Corrigido o corte do código */
+    background-size: 100% 4px, 6px 100%;
     pointer-events: none;
 }
 
@@ -118,6 +125,7 @@ body {
     color: var(--terminal-green);
     margin-right: 12px;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 #command-input {
@@ -138,7 +146,7 @@ body {
 .response-line {
     color: #cccccc;
     margin-bottom: 12px;
-    text-shadow: none; /* Remove o brilho excessivo do texto comum para leitura confortável */
+    text-shadow: none;
 }
 
 .response-line.error {
@@ -146,7 +154,7 @@ body {
     text-shadow: 0 0 8px rgba(255, 62, 62, 0.6);
 }
 
-/* 5. Telas de Transição (Sucesso e Slides) */
+/* 5. Telas pós-invasão (Sucesso e Visualizador de Slides) */
 #success-screen {
     display: none;
     flex-direction: column;
@@ -157,7 +165,7 @@ body {
 }
 
 .success-banner {
-    font-size: 60px; /* Reduzido levemente de 70px para evitar quebras de linha */
+    font-size: 48px;
     font-weight: bold;
     letter-spacing: 3px;
     text-shadow: 0 0 25px var(--terminal-green);
@@ -188,7 +196,8 @@ body {
     border: 1px solid rgba(0, 255, 65, 0.2);
     background: #000;
     overflow: hidden;
-    height: 480px;
+    height: auto;
+    min-height: 200px;
 }
 
 .slide-display img {
@@ -234,8 +243,79 @@ body {
     text-shadow: none;
 }
 
-/* Animações */
+/* 6. Animações */
 @keyframes pulse {
     0% { opacity: 0.7; transform: scale(0.98); }
     100% { opacity: 1; transform: scale(1); }
+}
+
+/* ==========================================================================
+   REGRAS DE RESPONSIVIDADE (MOBILE / TABLETS EM PÉ)
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start; /* Evita problemas de rolagem vertical no topo em telas muito baixinhas */
+    }
+
+    .slide-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        padding: 15px;
+        border: none; /* Remove bordas para virar "App" em tela cheia no celular */
+        box-shadow: none;
+    }
+
+    /* Reduz drasticamente a arte ASCII para não quebrar linha no celular */
+    .ascii-art {
+        font-size: 4px;
+        line-height: 1.1;
+        overflow-x: auto;
+        margin-bottom: 15px;
+    }
+
+    .terminal-header-icons {
+        font-size: 20px;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    /* Ajusta fontes gerais do terminal */
+    #command-input, .prompt, .history-line, .response-line {
+        font-size: 14px;
+    }
+
+    /* Alinha cabeçalho de slides verticalmente no mobile */
+    .slide-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .nav-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .nav-btn {
+        padding: 10px 20px; /* Botões maiores para melhor clique por toque */
+        font-size: 14px;
+    }
+
+    .success-banner {
+        font-size: 28px;
+    }
+
+    /* Destaca o rodapé de posição absoluta e joga para a base do fluxo */
+    .footer {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        margin-top: auto; /* Empurra o rodapé para o fim da tela */
+        text-align: center;
+        background: transparent;
+        border-top: 1px dashed var(--terminal-dim);
+        padding: 10px 0 0 0;
+    }
 }
