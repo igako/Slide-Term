@@ -1,21 +1,14 @@
-/* ==========================================================================
-   TEMA TERMINAL HACKER 
-   ========================================================================== */
-
 :root {
     --bg-color: #050505;
     --terminal-green: #00ff41;
     --terminal-dim: #008f11;
     --terminal-error: #ff3e3e;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-mono: 'JetBrains Mono', monospace;
     --text-glow: 0 0 8px rgba(0, 255, 65, 0.6);
 }
 
-/* 1. Reset e Configurações de Tela */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+* { 
+    box-sizing: border-box; 
 }
 
 body {
@@ -25,55 +18,27 @@ body {
     justify-content: center;
     align-items: center;
     margin: 0;
-    
-    /* Garante estabilidade de tamanho em navegadores mobile */
-    height: 100vh;          
-    height: -webkit-fill-available; /* Correção para a barra de navegação do Safari/Chrome no iOS/Android */
-    width: 100vw;           
-    
+    min-height: 100vh;
     font-family: var(--font-mono);
-    overflow: hidden;       
+    overflow: hidden;
     text-shadow: var(--text-glow);
-    padding: 10px;          /* Margem mínima em telas pequenas */
 }
 
-html {
-    /* Complemento para a correção de altura no mobile */
-    height: -webkit-fill-available; 
-}
-
-/* Classe utilitária para esconder a linha de comando durante o boot */
-.hidden {
-    display: none !important;
-}
-
-/* 2. Janela Principal do Terminal (Responsiva e Adaptável) */
+/* Monitor / Janela do Slide */
 .slide-container {
     background-color: var(--bg-color);
     border: 2px solid var(--terminal-dim);
     box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
-    display: none;
-    flex-direction: column;
-    
-    /* Desktop: Proporção de slide (1280x720) | Mobile: Ocupa a tela inteira */
-    width: 100%;
-    max-width: 1280px;
-    height: 100%;
-    max-height: 720px;
-    
-    /* Espaçamento interno fluido (menor no celular, maior no PC) */
-    padding: clamp(15px, 5vw, 45px); 
-    
-    position: relative; 
-    overflow-y: auto;   /* Permite rolagem INTERNA se o texto do terminal for muito longo no celular */
-    overflow-x: hidden;
-}
-
-.slide-container.active {
     display: flex;
+    flex-direction: column;
+    height: 720px;
+    padding: 40px;
+    position: relative;
+    width: 1280px;
+    overflow: hidden;
 }
 
-/* Efeito de linhas de escaneamento de monitor antigo (Scanlines) */
+/* Efeito de linhas CRT antigas */
 .slide-container::before {
     content: " ";
     display: block;
@@ -82,29 +47,194 @@ html {
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                 linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
     z-index: 10;
-    background-size: 100% 4px; 
-    pointer-events: none;      
+    background-size: 100% 4px, 6px 100%;
+    pointer-events: none;
 }
 
-/* ==========================================================================
-   3. REGRAS ESPECÍFICAS PARA DISPOSITIVOS MÓVEIS (Media Queries)
-   ========================================================================== */
-@media (max-width: 768px) {
-    body {
-        padding: 0; /* Remove as bordas externas no celular para ganhar tela */
-    }
+/* Área de Conteúdo Dinâmico */
+#terminal-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 30px);
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
 
-    .slide-container {
-        /* No celular, o terminal vira o app inteiro (sem limites de 1280x720) */
-        max-width: 100%;
-        max-height: 100%;
-        border: none; /* Remove a borda para parecer um app nativo de terminal */
-        border-radius: 0;
-        box-shadow: none;
-    }
+#terminal-content::-webkit-scrollbar { 
+    width: 6px; 
+}
 
-    /* Otimização de tipografia para telas pequenas (evita que textos quebrem bizarramente) */
-    body, input, button, textarea {
-        font-size: 14px; 
-    }
+#terminal-content::-webkit-scrollbar-thumb { 
+    background: var(--terminal-dim); 
+    border-radius: 3px; 
+}
+
+#output { 
+    white-space: pre-wrap; 
+    margin-bottom: 15px; 
+}
+
+/* Ícones e Cabeçalho */
+.terminal-header-icons {
+    display: flex;
+    gap: 20px;
+    font-size: 26px;
+    margin-bottom: 15px;
+    color: var(--terminal-green);
+}
+
+.ascii-art {
+    font-size: 10px;
+    line-height: 1.2;
+    white-space: pre;
+    color: var(--terminal-dim);
+    margin-bottom: 20px;
+}
+
+/* Inputs */
+.input-line { 
+    display: flex; 
+    align-items: center; 
+}
+
+.prompt { 
+    color: var(--terminal-green); 
+    margin-right: 12px; 
+    font-weight: bold; 
+}
+
+#command-input {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    outline: none;
+    width: 85%;
+    caret-color: var(--terminal-green);
+}
+
+.history-line { 
+    margin-top: 8px; 
+}
+
+.response-line { 
+    color: #cccccc; 
+    margin-bottom: 12px; 
+    text-shadow: none; 
+}
+
+.response-line.error { 
+    color: var(--terminal-error); 
+    text-shadow: 0 0 8px rgba(255, 62, 62, 0.6); 
+}
+
+/* Banner de Sucesso Centralizado */
+#success-screen {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+}
+
+.success-banner {
+    font-size: 70px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-shadow: 0 0 25px var(--terminal-green);
+    animation: pulse 1s infinite alternate;
+}
+
+/* Estilo que substituiu o inline do parágrafo de sucesso */
+.success-message {
+    color: var(--terminal-green); 
+    font-size: 20px; 
+    margin-top: 20px;
+}
+
+/* Visualizador de Imagens (Slides PNG) */
+#slide-viewer {
+    display: none;
+    flex-direction: column;
+    height: calc(100% - 40px);
+    position: relative;
+}
+
+.slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed var(--terminal-dim);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Estilo que substituiu o inline do título do slide atual */
+#slide-current-command {
+    color: #fff;
+}
+
+.slide-display {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    background: #000;
+    overflow: hidden;
+    height: 480px;
+}
+
+.slide-display img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Botões de Navegação dos Slides */
+.nav-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid var(--terminal-green);
+    color: var(--terminal-green);
+    font-family: var(--font-mono);
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: var(--terminal-dim);
+    color: #000;
+    box-shadow: 0 0 10px var(--terminal-green);
+}
+
+/* Rodapé Fixo */
+.footer {
+    position: absolute;
+    bottom: 25px;
+    right: 40px;
+    font-size: 14px;
+    color: var(--terminal-dim);
+    border-top: 1px dashed var(--terminal-dim);
+    padding-top: 5px;
+    background-color: var(--bg-color);
+    padding-left: 10px;
+    z-index: 20;
+    text-shadow: none;
+}
+
+.hidden { 
+    display: none !important; 
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
 }
