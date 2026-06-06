@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TEMA TERMINAL HACKER - by igako
+   TEMA TERMINAL HACKER - BY IGAKO
    ========================================================================== */
 
 :root {
@@ -146,7 +146,7 @@ body {
 .response-line {
     color: #cccccc;
     margin-bottom: 12px;
-    text-shadow: none;
+    text-shadow: none; /* Melhora a leitura removendo o brilho de textos longos */
 }
 
 .response-line.error {
@@ -250,11 +250,12 @@ body {
 }
 
 /* ==========================================================================
-   REGRAS DE RESPONSIVIDADE (MOBILE / TABLETS EM PÉ)
+   REGRAS DE RESPONSIVIDADE (MOBILE TOTALMENTE PROPORCIONAL)
    ========================================================================== */
 @media (max-width: 768px) {
     body {
-        align-items: flex-start; /* Evita problemas de rolagem vertical no topo em telas muito baixinhas */
+        align-items: flex-start;
+        padding: 5px;
     }
 
     .slide-container {
@@ -262,60 +263,85 @@ body {
         height: 100vh;
         max-width: 100vw;
         max-height: 100vh;
-        padding: 15px;
-        border: none; /* Remove bordas para virar "App" em tela cheia no celular */
+        padding: 4vw; /* Espaçamento interno proporcional à largura da tela */
+        border: none;
         box-shadow: none;
     }
 
-    /* Reduz drasticamente a arte ASCII para não quebrar linha no celular */
+    /* Arte ASCII encolhe proporcionalmente para nunca ultrapassar as bordas */
     .ascii-art {
-        font-size: 4px;
+        font-size: clamp(3px, 1.1vw, 8px);
         line-height: 1.1;
-        overflow-x: auto;
-        margin-bottom: 15px;
+        overflow-x: hidden;
+        margin-bottom: 3vh;
     }
 
+    /* Ícones superiores com dimensões adaptáveis */
     .terminal-header-icons {
-        font-size: 20px;
-        gap: 15px;
-        margin-bottom: 10px;
+        font-size: clamp(16px, 5vw, 24px);
+        gap: 4vw;
+        margin-bottom: 2vh;
     }
 
-    /* Ajusta fontes gerais do terminal */
-    #command-input, .prompt, .history-line, .response-line {
-        font-size: 14px;
+    /* Fontes do prompt de comando escalando dinamicamente entre 12px e 16px */
+    #command-input, 
+    .prompt, 
+    .history-line, 
+    .response-line {
+        font-size: clamp(12px, 3.8vw, 16px);
     }
 
-    /* Alinha cabeçalho de slides verticalmente no mobile */
+    .prompt {
+        margin-right: 2vw;
+    }
+
+    /* Telas do Visualizador de Slides Móvel */
     .slide-header {
         flex-direction: column;
-        gap: 10px;
+        gap: 1.5vh;
         align-items: flex-start;
+        margin-bottom: 2vh;
+    }
+
+    #slide-current-command {
+        font-size: clamp(11px, 3.2vw, 14px);
+        word-break: break-all;
     }
 
     .nav-controls {
         width: 100%;
-        justify-content: space-between;
+        display: flex;
+        gap: 3vw;
     }
 
+    /* Botões dividem o espaço igualmente e se adaptam à pegada do usuário */
     .nav-btn {
-        padding: 10px 20px; /* Botões maiores para melhor clique por toque */
-        font-size: 14px;
+        flex: 1;
+        text-align: center;
+        padding: 2.5vw 0; 
+        font-size: clamp(12px, 3.5vw, 15px);
     }
 
+    /* Banner de conexão bem-sucedida escalável */
     .success-banner {
-        font-size: 28px;
+        font-size: clamp(22px, 6vw, 36px);
+    }
+    
+    #success-screen p {
+        font-size: clamp(14px, 4vw, 18px) !important;
+        padding: 0 5vw;
     }
 
-    /* Destaca o rodapé de posição absoluta e joga para a base do fluxo */
+    /* Rodapé adaptado e reordenado para a base do fluxo */
     .footer {
         position: relative;
         bottom: auto;
         right: auto;
-        margin-top: auto; /* Empurra o rodapé para o fim da tela */
+        margin-top: auto;
         text-align: center;
         background: transparent;
         border-top: 1px dashed var(--terminal-dim);
-        padding: 10px 0 0 0;
+        padding-top: 1.5vh;
+        font-size: clamp(10px, 3vw, 13px);
     }
 }
